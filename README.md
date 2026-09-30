@@ -1,5 +1,12 @@
 # [手機邊框組合小工具](https://github.com/William-Weng?tab=repositories&q=wails)
 
+![Go](https://img.shields.io/badge/Go-1.27.1-00ADD8?logo=go&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-20.19.2-339933?logo=nodedotjs&logoColor=white)
+![Wails](https://img.shields.io/badge/Wails-v3.0.0--beta.26-DF0000?logo=wails&logoColor=white)
+![LICENSE](https://img.shields.io/github/license/William-Weng/Wails-Frame-Composer?style=flat&label=LICENSE&color=yellow)
+![Tag](https://img.shields.io/github/v/tag/William-Weng/Wails-Frame-Composer?style=flat&label=Tag)
+![Stars](https://img.shields.io/github/stars/William-Weng/Wails-Frame-Composer?style=flat&label=Stars)
+
 一個使用 Wails 3、Go、Svelte 與 Less 製作的桌面圖片合成工具。將手機外框圖與內容截圖拖進左右圖框，程式會偵測外框中的螢幕區域，把截圖放入後輸出 PNG。
 
 https://github.com/user-attachments/assets/73a9a678-4c18-4665-a0f8-be13986846d6
@@ -24,7 +31,7 @@ https://github.com/user-attachments/assets/73a9a678-4c18-4665-a0f8-be13986846d6
 
 預覽圖使用完整顯示模式：當圖片與圖框的長寬比不同時，周圍留空是正常現象；這不會將圖片拉伸變形。
 
-## [開發](https://developer.apple.com/app-store/marketing/guidelines/)
+## [開發](https://developer.apple.com/design/resources/#product-bezels)
 
 專案使用 Go 作為圖片處理與 Wails 後端，Svelte／TypeScript 管理拖放事件與介面狀態，Less 管理深色介面樣式。安裝專案所需的 Go、Node.js 與 Wails 3 工具後，在專案根目錄執行：
 

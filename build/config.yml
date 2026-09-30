@@ -11,7 +11,7 @@ info:
   description: "手機邊框組合小工具"
   copyright: "Copyright © 2026, William Weng"
   comments: "Built with Wails, Go, Svelte"
-  version: "0.1.0"
+  version: "0.2.0"
 
 # Dev mode configuration
 dev_mode:

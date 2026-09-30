@@ -4,7 +4,12 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	_ "image/jpeg"
+	_ "image/png"
+
 	"os"
+
+	_ "golang.org/x/image/webp"
 )
 
 /* MARK: - 主程式 */
