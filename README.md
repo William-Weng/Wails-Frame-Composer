@@ -9,7 +9,7 @@
 
 一個使用 Wails 3、Go、Svelte 與 Less 製作的桌面圖片合成工具。將手機外框圖與內容截圖拖進左右圖框，程式會偵測外框中的螢幕區域，把截圖放入後輸出 PNG。
 
-https://github.com/user-attachments/assets/73a9a678-4c18-4665-a0f8-be13986846d6
+https://github.com/user-attachments/assets/2a26f860-1ae7-4df0-bc57-b6d458e08748
 
 ## [功能](https://peterpanswift.github.io/iphone-bezels/)
 
