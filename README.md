@@ -24,7 +24,7 @@ https://github.com/user-attachments/assets/73a9a678-4c18-4665-a0f8-be13986846d6
 
 預覽圖使用完整顯示模式：當圖片與圖框的長寬比不同時，周圍留空是正常現象；這不會將圖片拉伸變形。
 
-## 開發
+## [開發](https://developer.apple.com/app-store/marketing/guidelines/)
 
 專案使用 Go 作為圖片處理與 Wails 後端，Svelte／TypeScript 管理拖放事件與介面狀態，Less 管理深色介面樣式。安裝專案所需的 Go、Node.js 與 Wails 3 工具後，在專案根目錄執行：
 
