@@ -1,6 +1,8 @@
-# 手機邊框組合小工具
+# [手機邊框組合小工具](https://github.com/William-Weng?tab=repositories&q=wails)
 
 一個使用 Wails 3、Go、Svelte 與 Less 製作的桌面圖片合成工具。將手機外框圖與內容截圖拖進左右圖框，程式會偵測外框中的螢幕區域，把截圖放入後輸出 PNG。
+
+https://github.com/user-attachments/assets/73a9a678-4c18-4665-a0f8-be13986846d6
 
 ## [功能](https://peterpanswift.github.io/iphone-bezels/)
 
@@ -61,6 +63,19 @@ Go 讀取圖片，回傳預覽用 Data URL
 - **Less**：管理深色配色、圖片區域與固定高度按鈕。
 - 預覽使用 Data URL，較大的圖片會增加前後端傳輸與記憶體使用量；若需要處理大量或高解析度圖片，可改用 Wails 資源處理器提供預覽 URL。
 - 合成結果與畫面上的預覽是兩件事：目前成功對話框顯示輸出檔案路徑，並未在介面中另設結果預覽框。
+
+## [建置指令整理](https://v3.wails.io/zh-tw/guides/build/building/)
+
+| 目的 | 指令 |
+| --- | --- |
+| 建立新專案 | `wails3 init -n <專案名稱> -t <前端框架>` |
+| 產生 bindings | `wails3 generate bindings` |
+| 更新 Windows 與 macOS 專用圖示檔案 | `wails3 generate icons -input build/appicon.png -windowsfilename build/windows/icon.ico -macfilename build/darwin/icons.icns` |
+| 更新建置資源 | `wails3 update build-assets -config build/config.yml -dir build` |
+| 拉取（下載）用於跨平台交叉編譯的 Docker 映像檔 | `wails3 task setup:docker` |
+| 建置 Windows x64 | `wails3 build GOOS=windows GOARCH=amd64` |
+| 打包 macOS arm64 | `wails3 package GOOS=darwin GOARCH=arm64` |
+| 打包 Linux arm64 | `wails3 build GOOS=linux GOARCH=arm64` |
 
 ## 專案檔案
 
