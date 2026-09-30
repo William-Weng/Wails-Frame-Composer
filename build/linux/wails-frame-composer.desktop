@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=wails-frame-composer
+Exec=wails-frame-composer
+Icon=wails-frame-composer
+Categories=Development;
+Terminal=false
+Keywords=wails
+Version=1.0
+StartupNotify=false
