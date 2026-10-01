@@ -68,18 +68,19 @@
      * @returns 合成與結果提示結束後完成；不回傳資料
      */
     async function combineImage(): Promise<void> {
+
         if (!leftImagePath || !rightImagePath || isCombining) { return; }
 
         isCombining = true;
 
         try {
             outputPath = await CombineImages(leftImagePath, rightImagePath);
+            isCombining = false;
             await dialog("info", "合成完成", outputPath);
         } catch (err) {
           const error = err instanceof Error ? err.message : String(err);
+          isCombining = false;
           await dialog("warning", "圖片合成失敗", error);
-        } finally {
-            isCombining = false;
         }
     }
 
@@ -98,29 +99,28 @@
 </script>
 
 <main>
-    <div class="image-area">
-        <section id="leftSlot" class="image-slot" class:has-image={!!leftImageSrc} data-file-drop-target>
+    <section id="leftSlot" class="image-slot" data-file-drop-target>
+        <div class="image-slot-frame">
             {#if leftImageSrc}
-                <img src={leftImageSrc} alt="外框預覽" />
+                <img class="image-slot-frame-img" src={leftImageSrc} alt="外框圖預覽">
             {:else}
-                <span class="placeholder">外框</span>
+                <span class="placeholder">外框圖預覽</span>
             {/if}
-        </section>
-        <section id="rightSlot" class="image-slot" class:has-image={!!rightImageSrc} data-file-drop-target>
+        </div>
+        <div id="rightSlot" class="image-slot-frame" data-file-drop-target>
             {#if rightImageSrc}
-                <img src={rightImageSrc} alt="內容圖預覽" />
+                <img class="image-slot-frame-img" src={rightImageSrc} alt="內容圖預覽">
             {:else}
-                <span class="placeholder">內容</span>
+                <span class="placeholder">內容圖預覽</span>
             {/if}
-        </section>
-    </div>
-
-    <div class="actions">
-        <button id="composeButton" type="button" onclick={combineImage} disabled={!leftImagePath || !rightImagePath || isCombining}>
+        </div>
+    </section>
+    <section class="button-area">
+        <button id="composeButton" class="button-area-frame" disabled={!leftImagePath || !rightImagePath || isCombining} onclick={combineImage}>
             {isCombining ? "合成中…" : "合成"}
         </button>
-        <button id="clearButton" type="button" onclick={resetInputPath}>
+        <button id="clearButton" class="button-area-frame" disabled={!leftImagePath && !rightImagePath || isCombining} onclick={resetInputPath}>
             清除
         </button>
-    </div>
+    </section>
 </main>

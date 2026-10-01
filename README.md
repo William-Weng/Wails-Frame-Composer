@@ -11,7 +11,7 @@
 
 將手機外框圖與內容截圖拖進左右圖框，程式會偵測外框中的螢幕區域，把截圖放入後輸出 PNG。
 
-https://github.com/user-attachments/assets/ca8b9218-dde7-4fe7-a84c-99283cd839b7
+https://github.com/user-attachments/assets/415a5190-cd45-4c68-ab71-0d8c63a8c1b2
 
 ## [功能](https://peterpanswift.github.io/iphone-bezels/)
 
@@ -46,7 +46,7 @@ wails3 dev
 
 建置指令與產物位置請以專案的 `Taskfile.yml` 及 Wails 設定為準；不同 Wails 3 專案模板可能有不同的建置 task。
 
-## 工作流程
+## [工作流程](https://www.casper.tw/css/2017/07/21/css-flex/)
 
 ```text
 拖入外框圖 / 內容圖
@@ -64,7 +64,7 @@ Go 讀取圖片，回傳預覽用 Data URL
 寫入 PNG，回傳輸出路徑
 ```
 
-## 技術與注意事項
+## [技術與注意事項](https://ithelp.ithome.com.tw/users/20178938/ironman/9621)
 
 - **Wails 3**：橋接 Go 與前端，並接收系統檔案拖放事件。
 - **Go**：讀取圖片、偵測透明區域與螢幕範圍、合成並寫入 PNG。
