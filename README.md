@@ -1,4 +1,4 @@
-# [手機邊框組合小工具](https://github.com/William-Weng?tab=repositories&q=wails)
+# [Wails-Frame-Composer](https://github.com/William-Weng?tab=repositories&q=wails)
 
 ![Go](https://img.shields.io/badge/Go-1.27.1-00ADD8?logo=go&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-20.19.2-339933?logo=nodedotjs&logoColor=white)
@@ -7,9 +7,11 @@
 ![Tag](https://img.shields.io/github/v/tag/William-Weng/Wails-Frame-Composer?style=flat&label=Tag)
 ![Stars](https://img.shields.io/github/stars/William-Weng/Wails-Frame-Composer?style=flat&label=Stars)
 
-一個使用 Wails 3、Go、Svelte 與 Less 製作的桌面圖片合成工具。將手機外框圖與內容截圖拖進左右圖框，程式會偵測外框中的螢幕區域，把截圖放入後輸出 PNG。
+一個使用 Wails 3、Go、Svelte 與 Less 製作的桌面圖片合成工具。
 
-https://github.com/user-attachments/assets/2a26f860-1ae7-4df0-bc57-b6d458e08748
+將手機外框圖與內容截圖拖進左右圖框，程式會偵測外框中的螢幕區域，把截圖放入後輸出 PNG。
+
+https://github.com/user-attachments/assets/ca8b9218-dde7-4fe7-a84c-99283cd839b7
 
 ## [功能](https://peterpanswift.github.io/iphone-bezels/)
 

@@ -19,8 +19,8 @@ func init() {
 func main() {
 
 	app := application.New(application.Options{
-		Name:        "Frame Composer",
-		Description: "A demo of using raw HTML & CSS",
+		Name:        "桌面圖片合成小工具",
+		Description: "一個使用 Wails 3、Go、Svelte 與 Less 製作的桌面圖片合成工具",
 		Services: []application.Service{
 			application.NewService(&backend.FrameComposeService{}),
 		},
@@ -33,7 +33,7 @@ func main() {
 	})
 
 	app.Window.NewWithOptions(application.WebviewWindowOptions{
-		Title:          "手機邊框組合小工具",
+		Title:          "桌面圖片合成小工具",
 		Width:          500,
 		Height:         600,
 		EnableFileDrop: true,

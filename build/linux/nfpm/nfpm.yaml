@@ -6,11 +6,11 @@
 name: ""
 arch: ${GOARCH}
 platform: "linux"
-version: "0.2.0"
+version: "0.2.2"
 section: "default"
 priority: "extra"
 maintainer: ${GIT_COMMITTER_NAME} <${GIT_COMMITTER_EMAIL}>
-description: "手機邊框組合小工具"
+description: "一個使用 Wails 3、Go、Svelte 與 Less 製作的桌面圖片合成工具"
 vendor: "William Weng"
 homepage: "https://wails.io"
 license: "MIT"

@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Name=Frame Composer
-Comment=手機邊框組合小工具
+Comment=一個使用 Wails 3、Go、Svelte 與 Less 製作的桌面圖片合成工具
 # The Exec line includes %u to pass the URL to the application
 Exec=/usr/local/bin/ %u
 Terminal=false
