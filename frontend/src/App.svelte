@@ -2,7 +2,8 @@
     import { onMount } from "svelte";
     import { Events } from "@wailsio/runtime";
     import { dialog } from "./utility/dialog";
-    import { ImagePreview, CombineImages } from "../bindings/frame-composer/backend/framecomposeservice"; // 換成實際產生的路徑
+    import { CombineImages } from "../bindings/frame-composer/backend/framecomposeservice"; // 換成實際產生的路徑
+    import { SetFramePath, SetScreenshotPath } from "../bindings/frame-composer/backend/imagepreviewservice"; // 換成實際產生的路徑
 
     let leftImagePath = $state("");
     let rightImagePath = $state("");
@@ -30,19 +31,34 @@
      * @param data - Wails 拖放事件資料，包含目標圖框 ID 與圖片完整路徑
      * @returns 圖片預覽處理完成後結束；不回傳資料
      */
-    async function imageFileDroppedAction(data: ImageDroppedData): Promise<void> {
-
-        if (data.slotId !== "leftSlot" && data.slotId !== "rightSlot") { return; }
+    async function imageFileDroppedAction(
+        data: ImageDroppedData,
+    ): Promise<void> {
+        if (data.slotId !== "leftSlot" && data.slotId !== "rightSlot") {
+            return;
+        }
 
         const isLeft = data.slotId === "leftSlot";
-        const version = isLeft ? ++leftPreviewVersion : ++rightPreviewVersion;
+        const version = isLeft
+            ? ++leftPreviewVersion
+            : ++rightPreviewVersion;
 
         try {
-            const src = await ImagePreview(data.path);
+            // 左側是外框圖，右側是內容圖。
+            // Go service 會驗證路徑、記住目前檔案，
+            // 並回傳可供 WebView 使用的虛擬 URL。
+            const src = isLeft
+                ? await SetFramePath(data.path)
+                : await SetScreenshotPath(data.path);
 
-            // 期間如果又拖入另一張圖或按了清除，就忽略舊結果
-            if (isLeft && version !== leftPreviewVersion) return;
-            if (!isLeft && version !== rightPreviewVersion) return;
+            // 如果等待後使用者已拖入另一張圖，忽略舊請求結果。
+            if (isLeft && version !== leftPreviewVersion) {
+                return;
+            }
+
+            if (!isLeft && version !== rightPreviewVersion) {
+                return;
+            }
 
             if (isLeft) {
                 leftImagePath = data.path;
@@ -54,10 +70,19 @@
 
             outputPath = "";
         } catch (err) {
-            // 失敗了，但如果已是過期請求，就不要顯示錯誤對話框
-            if (isLeft && version !== leftPreviewVersion) { return; }
-            if (!isLeft && version !== rightPreviewVersion) { return; }
-            const error = err instanceof Error ? err.message : String(err);
+            // 已經有更新的拖放請求時，不顯示舊請求的錯誤。
+            if (isLeft && version !== leftPreviewVersion) {
+                return;
+            }
+
+            if (!isLeft && version !== rightPreviewVersion) {
+                return;
+            }
+
+            const error = err instanceof Error
+                ? err.message
+                : String(err)
+
             await dialog("warning", "圖片預覽失敗", error);
         }
     }

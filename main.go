@@ -18,14 +18,22 @@ func init() {
 
 func main() {
 
+	frameComposeService := &backend.FrameComposeService{}
+	videoPreview := &backend.VideoPreviewService{}
+	imagePreview := &backend.ImagePreviewService{}
+
+	assetHandler := backend.NewAssetHandler(assets, videoPreview, imagePreview)
+
 	app := application.New(application.Options{
 		Name:        "桌面圖片合成小工具",
 		Description: "一個使用 Wails 3、Go、Svelte 與 Less 製作的桌面圖片合成工具",
 		Services: []application.Service{
-			application.NewService(&backend.FrameComposeService{}),
+			application.NewService(frameComposeService),
+			application.NewService(videoPreview),
+			application.NewService(imagePreview),
 		},
 		Assets: application.AssetOptions{
-			Handler: application.AssetFileServerFS(assets),
+			Handler: assetHandler,
 		},
 		Mac: application.MacOptions{
 			ApplicationShouldTerminateAfterLastWindowClosed: true,

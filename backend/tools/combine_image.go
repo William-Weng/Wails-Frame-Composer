@@ -5,14 +5,89 @@ import (
 	"image"
 	"image/color"
 	_ "image/jpeg"
+	"image/png"
 	_ "image/png"
 
 	"os"
 
+	"golang.org/x/image/draw"
 	_ "golang.org/x/image/webp"
 )
 
 /* MARK: - 主程式 */
+// 將內容截圖裁切、縮放後放入外框偵測出的螢幕區域，再疊上外框，將結果存成 PNG
+//
+// 參數：
+//   - framePath：外框圖片的完整檔案路徑
+//   - screenshotPath：要放入外框的內容圖片完整檔案路徑
+//
+// 回傳值：
+//   - 成功時回傳合成 PNG 的完整輸出路徑
+//   - 讀取、偵測螢幕區域或寫入失敗時回傳 error
+func CombineImages(framePath string, screenshotPath string) (string, error) {
+
+	frame, err := loadImage(framePath)
+	if err != nil {
+		return "", err
+	}
+
+	screenshot, err := loadImage(screenshotPath)
+	if err != nil {
+		return "", err
+	}
+
+	// transparent, total := inspectAlpha(frame)
+	// fmt.Printf("透明像素：%d / %d，比例：%.2f%%\n", transparent, total, float64(transparent)/float64(total)*100)
+
+	region, err := detectScreenRegion(frame)
+
+	if err != nil {
+		return "", err
+	}
+
+	screenRect := region.Rect
+
+	// fmt.Printf("偵測到螢幕區域：%v\n", screenRect)
+	// fmt.Printf("外框尺寸：%v\n", frame.Bounds())
+	frameBounds := frame.Bounds()
+
+	// 輸出畫布，尺寸完全跟 frame.png 一樣
+	result := image.NewRGBA(frameBounds)
+	sourceRect := centerCrop(screenshot.Bounds(), screenRect)
+
+	screenWidth := screenRect.Dx()
+	screenHeight := screenRect.Dy()
+
+	// 先把 screenshot 等比例縮放到螢幕矩形
+	scaled := image.NewRGBA(image.Rect(0, 0, screenWidth, screenHeight))
+	draw.CatmullRom.Scale(scaled, scaled.Bounds(), screenshot, sourceRect, draw.Src, nil)
+
+	// 螢幕圓角半徑 (BFS)
+	mask := buildScreenMask(frame.Bounds(), region, frame.Bounds().Dx())
+
+	// 截圖從 scaled 的 (0,0) 讀取；mask 則從 screenRect.Min 讀取；兩者都對齊 result 的 screenRect.Min
+	draw.DrawMask(result, screenRect, scaled, scaled.Bounds().Min, mask, screenRect.Min, draw.Src)
+
+	// 外框最後疊上，保留邊框與 Dynamic Island
+	draw.Draw(result, frameBounds, frame, frameBounds.Min, draw.Over)
+
+	outputPath := OutputPath(screenshotPath)
+	output, err := os.Create(outputPath)
+
+	if err != nil {
+		return "", err
+	}
+
+	defer output.Close()
+
+	if err := png.Encode(output, result); err != nil {
+		return "", err
+	}
+
+	return outputPath, nil
+}
+
+/* MARK: - 小工具 */
 // 讀取並解碼指定路徑的圖片
 //
 // 參數：
@@ -21,7 +96,7 @@ import (
 // 回傳值：
 //   - image.Image：解碼後的圖片；失敗時為 nil
 //   - error：開啟或解碼失敗時的錯誤；成功時為 nil
-func LoadImage(path string) (image.Image, error) {
+func loadImage(path string) (image.Image, error) {
 
 	file, err := os.Open(path)
 	if err != nil {
@@ -44,7 +119,7 @@ func LoadImage(path string) (image.Image, error) {
 // 回傳值：
 //   - transparent：alpha 為 0 的像素數量
 //   - total：圖片的總像素數量
-func InspectAlpha(img image.Image) (transparent, total int) {
+func inspectAlpha(img image.Image) (transparent, total int) {
 
 	bounds := img.Bounds()
 
@@ -69,7 +144,7 @@ func InspectAlpha(img image.Image) (transparent, total int) {
 // 回傳值：
 //   - image.Rectangle：螢幕透明區域的外接矩形；偵測失敗時為空矩形
 //   - error：圖片尺寸無效或找不到封閉透明區域時的錯誤；成功時為 nil
-func DetectScreenRegion(frame image.Image) (Region, error) {
+func detectScreenRegion(frame image.Image) (Region, error) {
 
 	if err := checkSize(frame); err != nil {
 		return Region{}, err
@@ -91,7 +166,7 @@ func DetectScreenRegion(frame image.Image) (Region, error) {
 //   - image.Rectangle：來源圖片中要保留的範圍。此函式只計算矩形；不會裁切圖片，也不會執行縮放
 //
 // 前提：src 和 target 的寬、高都必須大於 0
-func CenterCrop(src, target image.Rectangle) image.Rectangle {
+func centerCrop(src, target image.Rectangle) image.Rectangle {
 
 	srcWidth, srcHeight := src.Dx(), src.Dy()
 	targetWidth, targetHeight := target.Dx(), target.Dy()
@@ -118,7 +193,7 @@ func CenterCrop(src, target image.Rectangle) image.Rectangle {
 //
 // 回傳值：
 //   - *image.Alpha：螢幕區域 mask。Alpha 為 255 的位置會顯示 screenshot；Alpha 為 0 的位置不會顯示 screenshot
-func BuildScreenMask(frameBounds image.Rectangle, region Region, width int) *image.Alpha {
+func buildScreenMask(frameBounds image.Rectangle, region Region, width int) *image.Alpha {
 
 	mask := image.NewAlpha(frameBounds)
 
@@ -131,7 +206,6 @@ func BuildScreenMask(frameBounds image.Rectangle, region Region, width int) *ima
 	return mask
 }
 
-/* MARK: - 小工具 */
 // 檢查圖片的寬度與高度是否有效
 //
 // 參數：
