@@ -32,10 +32,10 @@ func NewAssetHandler(assets fs.FS, videoPreview *VideoPreviewService, imagePrevi
 			videoPreview.serveCurrentVideo(writer, request)
 			return
 		case strings.HasPrefix(request.URL.Path, screenshotPrefix):
-			imagePreview.serveCurrentImage(writer, request, false)
+			imagePreview.serveCurrentImage(writer, request, tools.ImageTypeScreenshot)
 			return
 		case strings.HasPrefix(request.URL.Path, framePrefix):
-			imagePreview.serveCurrentImage(writer, request, true)
+			imagePreview.serveCurrentImage(writer, request, tools.ImageTypeFrame)
 			return
 		default:
 			staticHandler.ServeHTTP(writer, request)

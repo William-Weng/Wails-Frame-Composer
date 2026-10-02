@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"fmt"
 	"frame-composer/backend/tools"
 	"net/http"
 	"path/filepath"
@@ -25,7 +26,7 @@ type ImagePreviewService struct {
 //   - error: 若路徑無效或檔案不存在則回傳錯誤
 func (service *ImagePreviewService) SetFramePath(path string) (string, error) {
 	prefix := tools.MediaPrefix["image-frame"]
-	return service.setImagePath(path, prefix, true)
+	return service.setImagePath(path, prefix, tools.ImageTypeFrame)
 }
 
 // 設定目前要在前端預覽的截圖圖片，回傳的 URL 可直接指定給 <img src>
@@ -38,19 +39,20 @@ func (service *ImagePreviewService) SetFramePath(path string) (string, error) {
 //   - error: 若路徑無效或檔案不存在則回傳錯誤
 func (service *ImagePreviewService) SetScreenshotPath(path string) (string, error) {
 	prefix := tools.MediaPrefix["image-screenshot"]
-	return service.setImagePath(path, prefix, false)
+	return service.setImagePath(path, prefix, tools.ImageTypeScreenshot)
 }
 
-// 內部共用函式，負責驗證並設定圖片路徑
+// 是 ImagePreviewService 的內部共用函式，負責驗證、保存指定類型的圖片路徑，並回傳前端可用的虛擬媒體 URL
 //
 // 參數:
-//   - path: 圖片檔案路徑
-//   - prefix: 對應的 URL 前綴（來自 mediaPrefix）
+//   - path: 圖片檔案路徑，可為相對或絕對路徑
+//   - prefix: 虛擬 URL 前綴，通常取自 mediaPrefix
+//   - imageType: 圖片用途類型，例如 tools.ImageTypeScreenshot 或 tools.ImageTypeFrame
 //
 // 回傳:
-//   - url: 組合後的虛擬 URL
-//   - error: 驗證失敗時的錯誤
-func (service *ImagePreviewService) setImagePath(path string, prefix string, isFrame bool) (string, error) {
+//   - url: 前端可指定給 <img src> 的虛擬 URL
+//   - error: 路徑無效、檔案不存在、格式不支援或圖片類型不支援時的錯誤
+func (service *ImagePreviewService) setImagePath(path string, prefix string, imageType tools.ImageType) (string, error) {
 
 	absolutePath, info, err := tools.ValidatePath(path, tools.ImageMimeMap)
 	if err != nil {
@@ -58,31 +60,48 @@ func (service *ImagePreviewService) setImagePath(path string, prefix string, isF
 	}
 
 	service.mutex.Lock()
-	if isFrame {
-		service.framePath = absolutePath
-	} else {
+	defer service.mutex.Unlock()
+
+	switch imageType {
+	case tools.ImageTypeScreenshot:
 		service.screenshotPath = absolutePath
+	case tools.ImageTypeFrame:
+		service.framePath = absolutePath
+	default:
+		return "", fmt.Errorf("不支援的圖片類型: %v", imageType)
 	}
-	service.mutex.Unlock()
 
 	return tools.MediaURL(prefix, absolutePath, info), nil
 }
 
-// serveCurrentImage 處理圖片預覽請求，根據 isFrame 決定回傳截圖或外框。
+// serveCurrentImage 處理目前指定類型的圖片預覽 HTTP 請求；此方法僅供 Go 端的 Asset Handler 使用，不應暴露為 Wails 可由前端呼叫的公開方法
 //
 // 參數:
-//   - writer: HTTP 回應寫入器
-//   - request: HTTP 請求物件
-//   - service: 圖片預覽服務
-//   - isFrame: true 回傳外框圖片，false 回傳截圖
-func (service *ImagePreviewService) serveCurrentImage(writer http.ResponseWriter, request *http.Request, isFrame bool) {
+//   - writer: HTTP 回應寫入器，用於寫入 HTTP status、header 與圖片內容
+//   - request: WebView 對虛擬媒體 URL 發出的 HTTP 請求
+//   - imageType: 要回傳的圖片類型；可為 tools.ImageTypeScreenshot 或 tools.ImageTypeFrame
+func (service *ImagePreviewService) serveCurrentImage(writer http.ResponseWriter, request *http.Request, imageType tools.ImageType) {
 
 	service.mutex.RLock()
-	path := service.screenshotPath
-	if isFrame {
+
+	var path string
+	var validType bool
+
+	switch imageType {
+	case tools.ImageTypeScreenshot:
+		path = service.screenshotPath
+		validType = true
+	case tools.ImageTypeFrame:
 		path = service.framePath
+		validType = true
 	}
+
 	service.mutex.RUnlock()
+
+	if !validType {
+		http.Error(writer, "不支援的圖片類型", http.StatusBadRequest)
+		return
+	}
 
 	file, err := tools.OpenFile(path)
 	if err != nil {
